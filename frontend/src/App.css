@@ -1,0 +1,154 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* General Styles */
+body {
+  background-color: #f4f8fb; /* Light Blue Background */
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hero Section with Flowing Gradient */
+.hero-section {
+  background: linear-gradient(90deg, #ffb5b5, #b2dffb, #ffb5b5); /* Flowing Gradient */
+  background-size: 400% 400%; /* For animation */
+  animation: gradientFlow 8s ease infinite; /* Smooth gradient animation */
+  color: #333333; /* Charcoal Gray */
+  padding: 3rem 0;
+  text-align: center;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+/* Card Styling */
+.card {
+  border-radius: 25px; /* Larger rounded edges */
+  border: none;
+  overflow: hidden;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+/* Input Group Styling */
+.input-group {
+  border-radius: 25px; /* Matching rounded edges */
+  overflow: hidden;
+  background-color: #ffffff; /* Visible white background */
+  /* border: 2px solid #b2dffb; Visible border with Powder Blue color */
+  padding: 0.5rem;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.input-group input {
+  border-radius: 15px; /* Rounded edges for inputs */
+  border: 1px solid #b2dffb; /* Visible border for input field */
+  padding: 0.75rem;
+  background-color: #ffffff; /* White background for contrast */
+  box-shadow: none;
+}
+
+.input-group input:focus {
+  outline: none;
+  border: 2px solid #82c8f2; /* Highlighted border on focus */
+  box-shadow: 0px 0px 5px rgba(130, 200, 242, 0.5); /* Glow effect */
+}
+
+/* Primary Button with Rounded Edges and Animation */
+.btn-primary {
+  background: #ffb5b5; /* Soft Coral */
+  border-radius: 25px; /* Rounded button */
+  border: none;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: scale(1.05); /* Subtle zoom */
+  box-shadow: 0px 4px 15px rgba(255, 181, 181, 0.6); /* Light shadow effect */
+}
+
+/* Shortened URL Section */
+.card .btn-link {
+  font-weight: bold;
+  color: #b2dffb; /* Powder Blue */
+  font-size: 1.1rem;
+}
+
+.card .btn-link:hover {
+  color: #82c8f2; /* Slightly darker Powder Blue */
+  text-decoration: none;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+}
