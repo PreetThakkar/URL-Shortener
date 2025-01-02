@@ -22,6 +22,10 @@ SCRIPT_NAME=/api gunicorn app:app -w 3 --worker-class=gevent -b localhost:5000 >
 echo $! > $SERVER_PID
 echo "Backend started with PID: $(cat $SERVER_PID)"
 
+# Sync bot for Redis and Mongo
+cd $BACKEND_DIR
+python3 -u -m utils.redis > redis_sync.log 2>&1 &
+
 # Frontend
 cd $FRONTEND_DIR
 npm i

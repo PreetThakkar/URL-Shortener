@@ -1,4 +1,5 @@
 # standard imports
+from datetime import datetime, timezone
 from json import dumps
 from http import HTTPStatus
 # third party imports
@@ -7,28 +8,46 @@ from flask.views import MethodView
 from flask_cors import CORS
 from pymongo.mongo_client import MongoClient
 # local imports
-from utils.mongo import get_mon_con, get_url_info, insert_url_info
+from utils.mongo import get_mon_con, get_url_info
+from utils.redis import get_redis_con
 from utils.shortner import shorten
 
 app = Flask(__name__)
 CORS(app)
 mon_con = get_mon_con()
+redis_con = get_redis_con()
 
 class ShortUrl(MethodView):
     def get(self, short_url):
         app.logger.info(f"Requested original url for: {short_url}")
         
-        # Check if short url exists
-        url_info = get_url_info(mon_con, short_url)
+        # Check if short url exists: Redis
+        app.logger.debug(f"Fetching data from Redis: {short_url}")
+        url_info = redis_con.hgetall(short_url)
         if not url_info:
-            # Return 404 not found
-            return Response(
-                response="URL not found",
-                status=HTTPStatus.NOT_FOUND
-            )
+            # Fetch url info: Mongo
+            app.logger.debug(f"Fetching data from Mongo: {short_url}")
+            url_info = get_url_info(mon_con, short_url)
 
+            # Update datetime objects to isoformat strings
+            _ = [url_info.update({x: url_info[x].isoformat()}) for x in ("last_accessed", "created_at") if url_info[x].__class__ == datetime]
+            if not url_info:
+                # Return 404 not found
+                return Response(
+                    response="URL not found",
+                    status=HTTPStatus.NOT_FOUND
+                )
+            
+            # Update info: Redis
+            redis_con.hmset(short_url, url_info)
+        
         # Update visit counts
-        insert_url_info(mon_con, short_url, None)
+        url_update = {
+            "visits": int(url_info["visits"]) + 1,
+            "last_accessed": datetime.now(tz=timezone.utc).isoformat()
+        }
+        redis_con.hmset("mongo", { short_url: 1 })
+        redis_con.hmset(short_url, url_update)
 
         # Return redirect code with original url
         return redirect(url_info["url"], code=HTTPStatus.FOUND)
@@ -42,9 +61,14 @@ class ShortUrl(MethodView):
         try:
             # Shorten the url
             short_url = shorten(url)
-            
-            # Insert record in database
-            insert_url_info(mon_con, short_url, url)
+
+            # Insert record: Redis
+            redis_con.hmset("mongo", {short_url: 1})
+            redis_con.hmset(short_url, {
+                "url": url,
+                "visits": 0,
+                "created_at": datetime.now(tz=timezone.utc).isoformat()
+            })
 
             status = HTTPStatus.OK
         except Exception as e:
@@ -66,17 +90,24 @@ class URLStats(MethodView):
         short_url = request.json.get("url")
         app.logger.info(f"Requested original url for: {short_url}")
         
-        # Check if short url exists
-        url_info = get_url_info(mon_con, short_url)
+        # Check if short url exists: Redis
+        app.logger.debug(f"Fetching data from Redis: {short_url}")
+        url_info = redis_con.hgetall(short_url)
         if not url_info:
-            # Return 404 not found
-            return Response(
-                response="URL not found",
-                status=HTTPStatus.NOT_FOUND
-            )
+            # Check url info: Mongo
+            app.logger.debug(f"Fetching data from Mongo: {short_url}")
+            url_info = get_url_info(mon_con, short_url)
+
+            # Update datetime objects to isoformat strings
+            _ = [url_info.update({x: url_info[x].isoformat()}) for x in ("last_accessed", "created_at") if url_info[x].__class__ == datetime]
+            if not url_info:
+                # Return 404 not found
+                return Response(
+                    response="URL not found",
+                    status=HTTPStatus.NOT_FOUND
+                )
 
         # Return redirect code with original url
-        _ = [url_info.update({key: url_info[key].isoformat()}) for key in ("created_at", "last_accessed")]
         return Response(
             response=dumps({
                 "info": url_info
