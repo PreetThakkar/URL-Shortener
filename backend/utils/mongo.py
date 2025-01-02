@@ -26,14 +26,17 @@ def insert_url_info(mon_con: MongoClient, short_url: str, url: str):
     update = {
         "$set": {
             "url": url,
-            "last_accessed": datetime.now(tz=timezone.utc)
+            "last_accessed": datetime.now(tz=timezone.utc),
+            "visits": 0
         },
         "$setOnInsert": {
             "created_at": datetime.now(tz=timezone.utc)
         }
     }
+    
     # Only updating the visit count
     if not url:
+        update["$set"].pop("visits")
         update["$inc"] = {"visits": 1}
         update["$set"].pop("url")
 
