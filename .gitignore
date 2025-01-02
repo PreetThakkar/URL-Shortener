@@ -3,3 +3,4 @@
 frontend/.env
 backend/settings.py
 **.pid
+**.log

@@ -73,7 +73,7 @@ function URLStats() {
                 </div>
                 <div className="detail-item">
                   <strong>Last Accessed:</strong>
-                  <p className="text-secondary">{new Date(stats.last_accessed).toLocaleString()}</p>
+                  <p className="text-secondary">{stats.last_accessed ? new Date(stats.last_accessed).toLocaleString() : "-"}</p>
                 </div>
               </div>
             )}
