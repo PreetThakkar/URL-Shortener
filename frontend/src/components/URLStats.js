@@ -27,11 +27,11 @@ function URLStats() {
           },
         }
       );
-      if (response.status === 503) {setError("Too many requests. Please try again after some time.")}
-      else { setStats(response.data.info); }
+      setStats(response.data.info);
     } catch (err) {
       console.error("Error fetching stats:", err);
-      setError("Failed to fetch stats. Please check the shortened URL.");
+      if (err.response.status === 503) {setError("Too many requests. Please try again after some time.")}
+      else {setError("Failed to fetch stats. Please check the shortened URL.");}
     }
     setLoading(false)
   };

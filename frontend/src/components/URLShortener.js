@@ -26,11 +26,11 @@ function URLShortener() {
           },
         }
       );
-      if (response.status === 503) {setError("Too many requests. Please try again after some time.")}
-      else { setShortUrl(`${apiUrl}/${response.data.short_url}`) }
+      setShortUrl(`${apiUrl}/${response.data.short_url}`)
     } catch (error) {
       console.error("Error shortening URL:", error);
-      setError("Failed to shorten URL.");
+      if (error.response.status === 503) {setError("Too many requests. Please try again after some time.")}
+      else {setError("Failed to shorten URL.");}
     }
     setloading(false)
   };
