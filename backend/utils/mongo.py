@@ -1,5 +1,6 @@
 # standard imports
 from datetime import datetime, timezone
+from typing import Dict
 # third party imports
 from pymongo.mongo_client import MongoClient
 from pymongo.database import Database
@@ -22,30 +23,14 @@ def get_url_info(mon_con: MongoClient, short_url: str):
 
     return results[0]
 
-def insert_url_info(mon_con: MongoClient, short_url: str, url: str):
-    update = {
-        "$set": {
-            "url": url,
-            "last_accessed": datetime.now(tz=timezone.utc),
-            "visits": 0
-        },
-        "$setOnInsert": {
-            "created_at": datetime.now(tz=timezone.utc)
-        }
-    }
-    
-    # Only updating the visit count
-    if not url:
-        update["$set"].pop("visits")
-        update["$inc"] = {"visits": 1}
-        update["$set"].pop("url")
-
-    
+def insert_url_info(mon_con: MongoClient, short_url: str, info: Dict):
     mon_db: Database = mon_con["url_db"]
     mon_db["urls"].update_one(
         filter={
             "_id": short_url,
         },
-        update=update,
+        update={
+            "$set": info
+        },
         upsert=True
     )
